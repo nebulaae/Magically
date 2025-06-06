@@ -1,0 +1,24 @@
+{
+    "Navbar": {
+        "Home": "Home",
+        "Search": "Search",
+        "Create": "Create",
+        "Library": "Library",
+        "Profile": "Profile"
+    },
+    "Home": {
+        "Title": "Home"
+    },
+    "Search": {
+        "Title": "Search"
+    },
+    "Create": {
+        "Title": "Create"
+    },
+    "Library": {
+        "Title": "Library"
+    },
+    "Profile": {
+        "Title": "Profile"
+    }
+}

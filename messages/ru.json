@@ -1,0 +1,24 @@
+{
+    "Navbar": {
+        "Home": "Главная",
+        "Search": "Поиск",
+        "Create": "Создать",
+        "Library": "Библиотека",
+        "Profile": "Профиль"
+    },
+    "Home": {
+        "Title": "Главная"
+    },
+    "Search": {
+        "Title": "Поиск"
+    },
+    "Create": {
+        "Title": "Создать"
+    },
+    "Library": {
+        "Title": "Библиотека"
+    },
+    "Profile": {
+        "Title": "Профиль"
+    }
+}
