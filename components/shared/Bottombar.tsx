@@ -81,7 +81,7 @@ export const Bottombar = () => {
                                         <item.icon className="size-4" />
                                     </Link>
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent className="z-100">
                                     <p>{item.label}</p>
                                 </TooltipContent>
                             </Tooltip>

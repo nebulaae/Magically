@@ -7,18 +7,64 @@
         "Profile": "Profile"
     },
     "Home": {
-        "Title": "Home"
+        "Title": "Home",
+        "Buttons": {
+            "Login": "Login",
+            "Register": "Register"
+        }
     },
     "Search": {
-        "Title": "Search"
+        "Title": "Search",
+        "Placeholder": "Search for images..."
     },
     "Create": {
-        "Title": "Create"
+        "Title": "Create",
+        "Options": {
+            "Option1": "Photo set with 4 images",
+            "Option2": "Photo set with 10 images",
+            "Option3": "Image to image",
+            "Option4": "Text to image"
+        }
     },
     "Library": {
-        "Title": "Library"
+        "Title": "Your library"
     },
     "Profile": {
-        "Title": "Profile"
+        "Title": "Profile",
+        "UserInfo": {
+            "Publications": "Publications",
+            "Followers": "Followers",
+            "Following": "Following"
+        }
+    },
+    "Settings": {
+        "Title": "Settings",
+        "Language": "Change the language",
+        "Theme": "Change the theme"
+    },
+    "Auth": {
+        "Login": {
+            "Title": "Login",
+            "UsernameOrEmail": "Enter username or email",
+            "Password": "Enter the password",
+            "Button": {
+                "Send": "Send",
+                "Sending": "Sending..."
+            },
+            "Register": "No account? Register"
+        },
+        "Register": {
+            "Title": "Register",
+            "Fullname": "Full name",
+            "Username": "Username",
+            "Email": "Email",
+            "Bio": "Bio",
+            "Password": "Enter the password",
+            "Button": {
+                "Send": "Send",
+                "Sending": "Sending..."
+            },
+            "Login": "Already have account? Login"
+        }
     }
 }

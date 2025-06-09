@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { Input } from "../ui/input";
+import { Input } from "../../ui/input";
 import { images } from "@/constants";
 import { useTranslations } from "next-intl";
 
@@ -10,9 +10,9 @@ export const Search = () => {
     return (
         <section className="flex-column">
             {/* Title */}
-            <h1 className="title-text">{t("Title")}</h1>
+            <h1 className="title-text my-6">{t("Title")}</h1>
             {/* Search input */}
-            <Input placeholder="Search for images..." className="w-full mt-4" />
+            <Input placeholder={t("Placeholder")} className="w-full" />
             {/* Results */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
                 {images.map((image, index) => (

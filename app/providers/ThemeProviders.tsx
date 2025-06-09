@@ -15,7 +15,7 @@ export const ThemeProviders = ({ children }: { children: ReactNode }) => {
     }
 
     return (
-        <ThemeProvider attribute="class" defaultTheme="system">
+        <ThemeProvider attribute="class" defaultTheme="dark">
             {children}
         </ThemeProvider>
     );

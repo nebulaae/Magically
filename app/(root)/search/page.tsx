@@ -1,4 +1,4 @@
-import { Search } from "@/components/pages/Search";
+import { Search } from "@/components/pages/sections/Search";
 
 const Page = () => {
     return (

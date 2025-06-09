@@ -1,10 +1,12 @@
+import Link from "next/link";
 import Image from "next/image";
 
 import { images } from "@/constants";
-import { Button } from "../ui/button";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 import { useTranslations } from "next-intl";
+import { Separator } from "@/components/ui/separator";
 
 export const Home = () => {
     const t = useTranslations("Home");
@@ -12,17 +14,31 @@ export const Home = () => {
     return (
         <section className="section-flex">
             {/* Navbar */}
-            <nav className="flex-between w-full border-b border-muted pb-4 my-4">
+            <nav className="flex-between w-full mt-6">
+                {/* Logo */}
                 <h1 className="font-bold">Logo</h1>
+                {/* Auth */}
                 <div className="flex-row gap-2">
-                    <Button variant="outline">Sign in</Button>
-                    <Button>Log in</Button>
+                    {/* Register */}
+                    <Link href="/register">
+                        <Button variant="outline">
+                            {t("Buttons.Register")}
+                        </Button>
+                    </Link>
+                    {/* Login */}
+                    <Link href="/login">
+                        <Button>
+                            {t("Buttons.Login")}
+                        </Button>
+                    </Link>
                 </div>
             </nav>
+            {/* Separator */}
+            <Separator className="bg-muted my-4" />
             {/* Title */}
             <h1 className="title-text">{t("Title")}</h1>
             {/* Categories */}
-            <div className="my-6">
+            <div className="my-4">
                 <div className="w-full max-w-full">
                     <ScrollArea className="w-full max-w-full overflow-hidden">
                         <div className="flex gap-2 py-2 pb-4 w-max">
@@ -53,7 +69,7 @@ export const Home = () => {
                 </div>
             </div>
             {/* Content */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid-default gap-4">
                 {images.map((image, index) => (
                     <Image
                         src={image.src}

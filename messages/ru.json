@@ -7,18 +7,64 @@
         "Profile": "Профиль"
     },
     "Home": {
-        "Title": "Главная"
+        "Title": "Главная",
+        "Buttons": {
+            "Login": "Войти",
+            "Register": "Регистрация"
+        }
     },
     "Search": {
-        "Title": "Поиск"
+        "Title": "Поиск",
+        "Placeholder": "Поиск изображений..."
     },
     "Create": {
-        "Title": "Создать"
+        "Title": "Создать",
+        "Options": {
+            "Option1": "Фотосет из 4 изображений",
+            "Option2": "Фотосет из 10 изображений",
+            "Option3": "Image to image",
+            "Option4": "Text to image"
+        }
     },
     "Library": {
-        "Title": "Библиотека"
+        "Title": "Ваша библиотека"
     },
     "Profile": {
-        "Title": "Профиль"
+        "Title": "Профиль",
+        "UserInfo": {
+            "Publications": "Публикации",
+            "Followers": "Подписчики",
+            "Following": "Подписки"
+        }
+    },
+    "Settings": {
+        "Title": "Настройки",
+        "Language": "Поменять язык",
+        "Theme": "Поменять тему"
+    },
+    "Auth": {
+        "Login": {
+            "Title": "Логин",
+            "UsernameOrEmail": "Имя пользователя или почта",
+            "Password": "Пароль",
+            "Button": {
+                "Send": "Отправить",
+                "Sending": "Отправка..."
+            },
+            "Register": "Нет аккаунта? Зарегистрироваться"
+        },
+        "Register": {
+            "Title": "Регистрация",
+            "Fullname": "Имя",
+            "Username": "Имя пользователя",
+            "Email": "Почта",
+            "Bio": "О себе",
+            "Password": "Пароль",
+            "Button": {
+                "Send": "Отправить",
+                "Sending": "Отправка..."
+            },
+            "Login": "Есть аккаунт? Логин"
+        }
     }
 }
