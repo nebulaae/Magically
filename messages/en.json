@@ -38,9 +38,11 @@
         }
     },
     "Settings": {
+        "BackToProfile": "Profile",
         "Title": "Settings",
         "Language": "Change the language",
-        "Theme": "Change the theme"
+        "Theme": "Change the theme",
+        "Logout": "Logout from account"
     },
     "Auth": {
         "Login": {
@@ -51,7 +53,11 @@
                 "Send": "Send",
                 "Sending": "Sending..."
             },
-            "Register": "No account? Register"
+            "Register": "No account? Register",
+            "Messages": {
+                "Success": "Successfully logged in!",
+                "Failure": "Couldn't login. Invalid credentials."
+            }
         },
         "Register": {
             "Title": "Register",
@@ -64,7 +70,11 @@
                 "Send": "Send",
                 "Sending": "Sending..."
             },
-            "Login": "Already have account? Login"
+            "Login": "Already have account? Login",
+            "Messages": {
+                "Success": "Successfully registered!",
+                "Failure": "Couldn't register. Fill all fields."
+            }
         }
     }
 }

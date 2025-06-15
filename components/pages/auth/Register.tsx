@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterFormValues, registerSchema } from "@/lib/validation";
@@ -22,7 +23,8 @@ import {
 } from "@/components/ui/form";
 
 export const Register = () => {
-    // Translations
+    // Hooks
+    const router = useRouter();
     const t = useTranslations("Auth.Register");
 
     // Hook form initialization
@@ -39,7 +41,25 @@ export const Register = () => {
 
     // Form handler
     const onSubmit = async (values: RegisterFormValues) => {
-        console.log(values);
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(values)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                router.push('/')
+                router.refresh()
+            } else {
+                console.error(data.message || "Не удалось авторизоваться. Неверные данные или пароль.");
+            }
+        } catch (err) {
+            console.error("Произошла ошибка. Пожалуйста, попробуйте позже.");
+        }
+
         form.reset();
     };
 

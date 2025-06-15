@@ -1,7 +1,8 @@
 import Image from "next/image";
 
-import { Input } from "../../ui/input";
 import { images } from "@/constants";
+import { Input } from "@/components/ui/input";
+
 import { useTranslations } from "next-intl";
 
 export const Search = () => {

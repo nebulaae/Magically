@@ -122,6 +122,11 @@
   }
 }
 
+@layer components {
+  .link-button {
+    @apply !p-0 !text-sky-500;
+  }
+}
 
 @layer utilities {
   .flex-column {
@@ -144,6 +149,10 @@
     @apply flex items-center justify-end;
   }
 
+  .flex-items-end {
+    @apply flex items-end justify-center;
+  }
+
   .flex-start {
     @apply flex items-center justify-start;
   }
@@ -159,7 +168,7 @@
 
 @layer utilities {
   .glassmorphism {
-    @apply supports-backdrop-blur:bg-white/10 supports-backdrop-blur:dark:bg-black/10 backdrop-blur-md;
+    @apply supports-backdrop-blur:bg-white/50 supports-backdrop-blur:dark:bg-black/10 backdrop-blur-xl;
   }
 
   .title-text {
