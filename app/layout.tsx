@@ -1,6 +1,7 @@
 import { Metadata } from "next";
+import { RootLayoutProps } from "@/types";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Bottombar } from "@/components/shared/Bottombar";
+
 import { Container } from "@/components/shared/Container";
 import { SmoothCursor } from "@/components/ui/magic/smooth-cursor";
 
