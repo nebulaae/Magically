@@ -46,6 +46,7 @@
     },
     "Auth": {
         "Login": {
+            "BackToHomePage": "Вернуться на главную",
             "Title": "Логин",
             "UsernameOrEmail": "Имя пользователя или почта",
             "Password": "Пароль",
@@ -60,6 +61,7 @@
             }
         },
         "Register": {
+            "BackToHomePage": "Вернуться на главную",
             "Title": "Регистрация",
             "Fullname": "Имя",
             "Username": "Имя пользователя",

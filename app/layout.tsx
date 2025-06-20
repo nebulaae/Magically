@@ -36,11 +36,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
               <Container>
                 {children}
               </Container>
-            <Bottombar />
             <SmoothCursor />
           </ThemeProviders>
         </NextIntlClientProvider>
       </body>
     </html>
   );
-}
+};

@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterFormValues, registerSchema } from "@/lib/validation";
 
+import { ChevronLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -65,7 +66,24 @@ export const Register = () => {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="section-flex w-full max-w-sm space-y-4 border p-6 rounded-xl">
+            {/* Back to home button */}
+            <Link
+                href="/"
+                className="w-full max-w-sm mb-2"
+            >
+                <Button
+                    variant="link"
+                    className="link-button"
+                >
+                    <ChevronLeft />
+                    {t("BackToHomePage")}
+                </Button>
+            </Link>
+            {/* Form */}
+            <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="section-flex w-full max-w-sm space-y-4 border p-6 rounded-xl glassmorphism z-20"
+            >
 
                 <h1 className="title-text">{t("Title")}</h1>
 

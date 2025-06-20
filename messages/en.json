@@ -46,6 +46,7 @@
     },
     "Auth": {
         "Login": {
+            "BackToHomePage": "Back to home page",
             "Title": "Login",
             "UsernameOrEmail": "Enter username or email",
             "Password": "Enter the password",
@@ -60,6 +61,7 @@
             }
         },
         "Register": {
+            "BackToHomePage": "Back to home page",
             "Title": "Register",
             "Fullname": "Full name",
             "Username": "Username",
