@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { motion, useSpring } from "framer-motion";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { motion, useSpring, useMotionTemplate, useMotionValue } from "framer-motion";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 
 import { images } from "@/constants";
 import { Button } from "@/components/ui/button";
@@ -19,115 +19,194 @@ interface DominantColors {
     tertiary: string;
 }
 
-const extractDominantColors = (imgElement: HTMLImageElement): Promise<DominantColors> => {
+const extractDominantColors = (imgElement: HTMLImageElement): Promise<DominantColors | null> => {
     return new Promise((resolve) => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
         if (!ctx) {
-            resolve({
-                primary: "rgb(30, 30, 30)",
-                secondary: "rgb(60, 60, 60)",
-                tertiary: "rgb(40, 40, 40)",
-            });
+            resolve(null);
             return;
         }
 
-        canvas.width = 50;
-        canvas.height = 50;
-        ctx.drawImage(imgElement, 0, 0, 50, 50);
+        canvas.width = 100;
+        canvas.height = 100;
+        ctx.drawImage(imgElement, 0, 0, 100, 100);
 
         try {
-            const imageData = ctx.getImageData(0, 0, 50, 50);
+            const imageData = ctx.getImageData(0, 0, 100, 100);
             const data = imageData.data;
             const colorMap: Record<string, number> = {};
 
-            for (let i = 0; i < data.length; i += 16) {
+            // Sample more pixels for better accuracy
+            for (let i = 0; i < data.length; i += 4) {
                 const r = data[i];
                 const g = data[i + 1];
                 const b = data[i + 2];
-                const key = `${Math.floor(r / 32) * 32},${Math.floor(g / 32) * 32},${Math.floor(b / 32) * 32}`;
+                const alpha = data[i + 3];
+
+                // Skip transparent pixels
+                if (alpha < 128) continue;
+
+                // Skip very dark or very light pixels for better color detection
+                const brightness = (r + g + b) / 3;
+                if (brightness < 20 || brightness > 240) continue;
+
+                // Less aggressive grouping for more accurate colors
+                const key = `${Math.floor(r / 16) * 16},${Math.floor(g / 16) * 16},${Math.floor(b / 16) * 16}`;
                 colorMap[key] = (colorMap[key] || 0) + 1;
             }
 
             const sortedColors = Object.entries(colorMap)
                 .sort(([, a], [, b]) => b - a)
-                .slice(0, 3)
+                .slice(0, 5)
                 .map(([color]) => {
                     const [r, g, b] = color.split(",").map(Number);
-                    return `rgb(${Math.min(r + 30, 255)}, ${Math.min(g + 30, 255)}, ${Math.min(b + 30, 255)})`;
+                    // Enhance saturation instead of just brightening
+                    const enhanceFactor = 1.2;
+                    const enhancedR = Math.min(Math.round(r * enhanceFactor), 255);
+                    const enhancedG = Math.min(Math.round(g * enhanceFactor), 255);
+                    const enhancedB = Math.min(Math.round(b * enhanceFactor), 255);
+                    return `rgb(${enhancedR}, ${enhancedG}, ${enhancedB})`;
                 });
 
+            if (sortedColors.length < 3) {
+                resolve(null);
+                return;
+            }
+
             resolve({
-                primary: sortedColors[0] || "rgb(30, 30, 30)",
-                secondary: sortedColors[1] || "rgb(60, 60, 60)",
-                tertiary: sortedColors[2] || "rgb(40, 40, 40)",
+                primary: sortedColors[0],
+                secondary: sortedColors[1],
+                tertiary: sortedColors[2],
             });
         } catch {
-            resolve({
-                primary: "rgb(30, 30, 30)",
-                secondary: "rgb(60, 60, 60)",
-                tertiary: "rgb(40, 40, 40)",
-            });
+            resolve(null);
         }
     });
+};
+
+const blendColors = (colors: DominantColors[]): DominantColors | null => {
+    if (colors.length === 0) return null;
+    if (colors.length === 1) return colors[0];
+
+    const parseRgb = (rgb: string) => {
+        const match = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        return match ? [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])] : null;
+    };
+
+    const blendRgb = (colors: number[][]): string => {
+        const avgR = Math.round(colors.reduce((sum, [r]) => sum + r, 0) / colors.length);
+        const avgG = Math.round(colors.reduce((sum, [, g]) => sum + g, 0) / colors.length);
+        const avgB = Math.round(colors.reduce((sum, [, , b]) => sum + b, 0) / colors.length);
+        return `rgb(${avgR}, ${avgG}, ${avgB})`;
+    };
+
+    const validColors = colors.map(c => ({
+        primary: parseRgb(c.primary),
+        secondary: parseRgb(c.secondary),
+        tertiary: parseRgb(c.tertiary),
+    })).filter(c => c.primary && c.secondary && c.tertiary);
+
+    if (validColors.length === 0) return null;
+
+    return {
+        primary: blendRgb(validColors.map(c => c.primary!)),
+        secondary: blendRgb(validColors.map(c => c.secondary!)),
+        tertiary: blendRgb(validColors.map(c => c.tertiary!)),
+    };
 };
 
 export const Home = () => {
     const t = useTranslations("Home");
     const { theme } = useTheme();
     const imgRefs = useRef<Record<number, HTMLImageElement | null>>({});
-    const [colorQueue, setColorQueue] = useState<DominantColors[]>([]);
-    const [currentColorIndex, setCurrentColorIndex] = useState(0);
+    const observerRef = useRef<IntersectionObserver | null>(null);
+    const [imageColors, setImageColors] = useState<Record<number, DominantColors>>({});
+    const [visibleImages, setVisibleImages] = useState<Set<number>>(new Set());
+    const [colorUpdateTrigger, setColorUpdateTrigger] = useState(0);
 
-    const colorCycle = useMemo(() => {
-        if (colorQueue.length === 0) {
-            return {
-                primary: "rgb(30, 30, 30)",
-                secondary: "rgb(60, 60, 60)",
-                tertiary: "rgb(40, 40, 40)",
-            };
+    const currentColors = useMemo(() => {
+        const visibleColors = Array.from(visibleImages)
+            .map(index => imageColors[index])
+            .filter(Boolean);
+        return blendColors(visibleColors);
+    }, [visibleImages, imageColors, colorUpdateTrigger]);
+
+    const handleImageLoad = useCallback(async (index: number) => {
+        const img = imgRefs.current[index];
+        if (!img) return;
+
+        try {
+            const colors = await extractDominantColors(img);
+            if (colors) {
+                setImageColors(prev => {
+                    const updated = { ...prev, [index]: colors };
+                    // Force color update trigger to refresh the blend
+                    setColorUpdateTrigger(t => t + 1);
+                    return updated;
+                });
+            }
+        } catch (error) {
+            console.warn(`Failed to extract colors for image ${index}:`, error);
         }
-        return colorQueue[currentColorIndex];
-    }, [colorQueue, currentColorIndex]);
-
-    const springPrimary = useSpring(colorCycle.primary, { damping: 20, stiffness: 80 });
-    const springSecondary = useSpring(colorCycle.secondary, { damping: 20, stiffness: 80 });
-    const springTertiary = useSpring(colorCycle.tertiary, { damping: 20, stiffness: 80 });
-
-    const addColorToQueue = async (img: HTMLImageElement) => {
-        const colors = await extractDominantColors(img);
-        setColorQueue((prev) => [...prev, colors]);
-    };
-
-    useEffect(() => {
-        images.forEach((_, idx) => {
-            const el = imgRefs.current[idx];
-            if (el?.complete) addColorToQueue(el);
-        });
     }, []);
 
     useEffect(() => {
-        if (colorQueue.length > 1) {
-            const interval = setInterval(() => {
-                setCurrentColorIndex((prev) => (prev + 1) % colorQueue.length);
-            }, 30000);
-            return () => clearInterval(interval);
-        }
-    }, [colorQueue]);
+        observerRef.current = new IntersectionObserver(
+            (entries) => {
+                setVisibleImages(prev => {
+                    const newSet = new Set(prev);
+                    entries.forEach(entry => {
+                        const index = parseInt(entry.target.getAttribute('data-index') || '0');
+                        if (entry.isIntersecting) {
+                            newSet.add(index);
+                        } else {
+                            newSet.delete(index);
+                        }
+                    });
+                    return newSet;
+                });
+            },
+            {
+                threshold: 0.3,
+                rootMargin: '10px'
+            }
+        );
+
+        return () => {
+            observerRef.current?.disconnect();
+        };
+    }, []);
+
+    useEffect(() => {
+        const observer = observerRef.current;
+        if (!observer) return;
+
+        Object.values(imgRefs.current).forEach(img => {
+            if (img) observer.observe(img);
+        });
+
+        return () => {
+            Object.values(imgRefs.current).forEach(img => {
+                if (img) observer.unobserve(img);
+            });
+        };
+    }, [images]);
 
     return (
         <>
-            {theme === "dark" ? (
+            {theme === "dark" && currentColors ? (
                 <div className="fixed inset-0 -z-10">
                     <motion.div
-                        className="absolute inset-0 opacity-30 blur-3xl"
+                        className="absolute inset-0 opacity-50 blur-3xl"
                         style={{
                             background: `
-                radial-gradient(circle at 20% 30%, ${colorCycle.primary} 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, ${colorCycle.secondary} 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, ${colorCycle.tertiary} 0%, transparent 50%)
-              `,
+                                radial-gradient(circle at 20% 30%, ${currentColors.primary} 0%, transparent 20%),
+                                radial-gradient(circle at 80% 70%, ${currentColors.secondary} 0%, transparent 60%),
+                                radial-gradient(circle at 50% 50%, ${currentColors.tertiary} 0%, transparent 60%)
+                            `,
+                            transition: "background 1s ease"
                         }}
                         animate={{
                             scale: [1, 1.2, 1],
@@ -136,32 +215,43 @@ export const Home = () => {
                             y: [0, -15, 10, 0],
                         }}
                         transition={{
-                            duration: 5,
+                            duration: 10,
                             repeat: Infinity,
                             ease: "easeInOut",
                         }}
                     />
+                    <motion.div
+                        className="absolute inset-0 opacity-20"
+                        style={{
+                            background: `linear-gradient(135deg, ${currentColors.primary}, ${currentColors.secondary}, ${currentColors.tertiary})`,
+                            transition: "background 1s ease"
+                        }}
+                    />
                 </div>
             ) : (
-                <div className="fixed inset-0 -z-10 bg-neutral-50" />
+                <div className="fixed inset-0 -z-10" />
             )}
-
             <section className="section-flex relative">
+                {/* Header */}
                 <nav className="flex-between w-full mt-6">
+                    {/* Logo */}
                     <h1 className="font-bold">Logo</h1>
                     <div className="flex-row gap-2">
+                        {/* Register */}
                         <Link href="/register">
                             <Button variant="outline">{t("Buttons.Register")}</Button>
                         </Link>
+                        {/* Login */}
                         <Link href="/login">
                             <Button>{t("Buttons.Login")}</Button>
                         </Link>
                     </div>
                 </nav>
-
+                {/* Separator */}
                 <Separator className="bg-muted my-4" />
+                {/* Title */}
                 <h1 className="title-text">{t("Title")}</h1>
-
+                {/* Categories */}
                 <div className="my-4">
                     <div className="w-full max-w-full">
                         <ScrollArea className="w-full max-w-full overflow-hidden">
@@ -192,8 +282,8 @@ export const Home = () => {
                         </ScrollArea>
                     </div>
                 </div>
-
-                <div className="grid-default gap-4">
+                {/* Content */}
+                <div className="grid-2-2-1 gap-4">
                     {images.map((image, index) => (
                         <motion.div
                             key={index}
@@ -204,14 +294,17 @@ export const Home = () => {
                         >
                             <Image
                                 ref={(el) => {
-                                    if (el) imgRefs.current[index] = el as unknown as HTMLImageElement;
+                                    if (el) {
+                                        imgRefs.current[index] = el as unknown as HTMLImageElement;
+                                        el.setAttribute('data-index', index.toString());
+                                    }
                                 }}
                                 src={image.src}
                                 alt={image.title}
                                 width={2000}
                                 height={2000}
                                 className="w-full h-auto rounded-lg object-cover aspect-square"
-                                onLoad={() => addColorToQueue(imgRefs.current[index]!)}
+                                onLoad={() => handleImageLoad(index)}
                                 crossOrigin="anonymous"
                                 priority={index < 4}
                             />
